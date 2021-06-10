@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Product.Web.Api.DTO.Product;
 using Product.Web.Bll.Interface;
 using Product.Web.Info;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Product.Web.Api.Controllers
 {
@@ -10,16 +13,18 @@ namespace Product.Web.Api.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductBll bll;
+        private readonly IMapper _mapper;
 
-        public ProductController(IProductBll productBll)
+        public ProductController(IProductBll productBll, IMapper mapper)
         {
             bll = productBll;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public IList<ProductInfo> Get()
+        public IActionResult Get()
         {
-            return bll.GetAllProducts();
+            return Ok(_mapper.Map<IList<ProductListDTO>>(bll.GetAllProducts()));
         }
 
         [HttpGet("{id:length(24)}", Name = "GetProduct")]
@@ -32,34 +37,50 @@ namespace Product.Web.Api.Controllers
                 return NotFound();
             }
 
-            return new ObjectResult(product);
+            return Ok(_mapper.Map<ProductListDTO>(bll.GetByProductId(id)));
         }
 
-        [HttpPost]
-        public ActionResult<ProductInfo> Create(ProductInfo product)
+        [HttpGet("{name}")]
+        public IActionResult GetByName(string name)
         {
-            bll.AddProduct(product);
-            return CreatedAtRoute("GetProduct", new { id = product.Id.ToString() }, product);
-        }
+            var product = bll.GetByName(name);
 
-        [HttpPut("{id:length(24)}")]
-        public IActionResult Update(string id, ProductInfo productModel)
-        {
-            var product = bll.GetByProductId(id);
             if (product == null)
             {
                 return NotFound();
             }
 
-            bll.EditProduct(id, productModel);
+            return Ok(bll.GetByName(name));
+        }
 
-            return new ObjectResult(product);
+        [HttpPost]
+        public async Task<IActionResult> Create(ProductDTO product)
+        {
+            var productDTO = await bll.AddProductAsync(_mapper.Map<ProductInfo>(product));
+
+            return CreatedAtRoute("GetProduct", new { id = productDTO.Id.ToString() }, productDTO);
+        }
+
+        [HttpPut("{id:length(24)}")]
+        public async Task<IActionResult> Update(string id, ProductDTO productDTO)
+        {
+            var product = bll.GetByProductId(id);
+            
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            await bll.EditProductAsync(id, _mapper.Map<ProductInfo>(productDTO));
+
+            return new ObjectResult(_mapper.Map<ProductInfo>(product));
         }
 
         [HttpDelete("{id:length(24)}")]
         public IActionResult DeleteById(string id)
         {
             var product = bll.GetByProductId(id);
+
             if (product == null)
             {
                 return NotFound();
@@ -67,7 +88,7 @@ namespace Product.Web.Api.Controllers
 
             bll.DeleteProduct(product.Id);
 
-            return new ObjectResult(product);
+            return new ObjectResult(_mapper.Map<ProductInfo>(product));
         }
 
     }

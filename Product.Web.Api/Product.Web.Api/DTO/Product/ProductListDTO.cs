@@ -1,12 +1,7 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-
-namespace Product.Web.Info
+﻿namespace Product.Web.Api.DTO.Product
 {
-    public class ProductInfo
+    public class ProductListDTO
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
         public string NameProduct { get; set; }
         public string DescriptionProduct { get; set; }

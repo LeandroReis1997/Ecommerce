@@ -8,15 +8,16 @@ namespace Product.Web.Bll
 {
     public class ProductBll : IProductBll
     {
-
         private IProductDal dal;
+
         public ProductBll(IProductDal productDal)
         {
             dal = productDal;
         }
-        public Task<ProductInfo> AddProduct(ProductInfo product)
+
+        public async Task<ProductInfo> AddProductAsync(ProductInfo product)
         {
-            return dal.AddProduct(product);
+            return await dal.AddProductAsync(product);
         }
 
         public Task<string> DeleteProduct(string id)
@@ -24,9 +25,10 @@ namespace Product.Web.Bll
             return dal.DeleteProduct(id);
         }
 
-        public Task<ProductInfo> EditProduct(string id, ProductInfo product)
+        public async Task<ProductInfo> EditProductAsync(string id, ProductInfo product)
         {
-            return dal.EditProduct(id, product);
+            product.Id = id;
+            return await dal.EditProductAsync(id, product);
         }
 
         public List<ProductInfo> GetAllProducts()
@@ -34,7 +36,7 @@ namespace Product.Web.Bll
             return dal.GetAllProducts();
         }
 
-        public ProductInfo GetByName(string name)
+        public List<ProductInfo> GetByName(string name)
         {
             return dal.GetByName(name);
         }

@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -5,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using Product.Web.Api.Mapper;
 using Product.Web.Bll;
 using Product.Web.Bll.Interface;
 using Product.Web.Dal;
@@ -28,6 +30,14 @@ namespace Product.Web.Api
         {
             services.AddScoped<IProductBll, ProductBll>();
             services.AddScoped<IProductDal, ProductDal>();
+
+            var mapperConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new MapperProfile());
+            });
+
+            IMapper mapper = mapperConfig.CreateMapper();
+            services.AddSingleton(mapper);
 
             // MongoDB
 

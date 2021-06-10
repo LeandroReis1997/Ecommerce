@@ -18,7 +18,7 @@ namespace Product.Web.Dal
             _products = database.GetCollection<ProductInfo>(configuration.ProductCollectionName);
         }
 
-        public async Task<ProductInfo> AddProduct(ProductInfo product)
+        public async Task<ProductInfo> AddProductAsync(ProductInfo product)
         {
             await _products.InsertOneAsync(product);
             return product;
@@ -30,7 +30,7 @@ namespace Product.Web.Dal
             return id;
         }
 
-        public async Task<ProductInfo> EditProduct(string id, ProductInfo product)
+        public async Task<ProductInfo> EditProductAsync(string id, ProductInfo product)
         {
             await _products.ReplaceOneAsync(x => x.Id == id, product);
             return product;
@@ -41,9 +41,9 @@ namespace Product.Web.Dal
             return _products.Find(x => true).ToList();
         }
 
-        public ProductInfo GetByName(string name)
+        public List<ProductInfo> GetByName(string name)
         {
-            return _products.Find<ProductInfo>(x => x.NameProduct == name).FirstOrDefault();
+            return _products.Find<ProductInfo>(x => x.NameProduct.Contains(name)).ToList();
         }
 
         public ProductInfo GetByProductId(string id)
