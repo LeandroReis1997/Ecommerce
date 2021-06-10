@@ -1,17 +1,16 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
-using Product.Web.Api.Service;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Product.Web.Bll;
+using Product.Web.Bll.Interface;
+using Product.Web.Dal;
+using Product.Web.Dal.Interface;
+using Product.Web.Info.Data.Configuration;
+using Product.Web.Info.Data.Configuration.Interface;
 
 namespace Product.Web.Api
 {
@@ -27,7 +26,17 @@ namespace Product.Web.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<ProductService>();
+            services.AddScoped<IProductBll, ProductBll>();
+            services.AddScoped<IProductDal, ProductDal>();
+
+            // MongoDB
+
+            services.Configure<ProductStoreDatabaseSettings>(
+                Configuration.GetSection(nameof(ProductStoreDatabaseSettings)));
+
+            services.AddSingleton<IProductStoreDatabaseSettings>(x =>
+            x.GetRequiredService<IOptions<ProductStoreDatabaseSettings>>().Value);
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

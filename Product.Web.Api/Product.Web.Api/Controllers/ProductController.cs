@@ -1,77 +1,73 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Product.Web.Api.Models;
-using Product.Web.Api.Service;
-using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Product.Web.Bll.Interface;
+using Product.Web.Info;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Product.Web.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("webapi/product")]
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly ProductService _productService;
+        private readonly IProductBll bll;
 
-        public ProductController(ProductService productService)
+        public ProductController(IProductBll productBll)
         {
-            _productService = productService;
+            bll = productBll;
         }
 
         [HttpGet]
-        public ActionResult<List<ProductModel>> Get()
+        public IList<ProductInfo> Get()
         {
-            return _productService.Get();
+            return bll.GetAllProducts();
         }
 
         [HttpGet("{id:length(24)}", Name = "GetProduct")]
-        public ActionResult<ProductModel> GetById(string id)
+        public IActionResult GetById(string id)
         {
-            var product = _productService.GetById(id);
+            var product = bll.GetByProductId(id);
 
             if (product == null)
             {
                 return NotFound();
             }
 
-            return product;
+            return new ObjectResult(product);
         }
 
         [HttpPost]
-        public ActionResult<ProductModel> Create(ProductModel product)
+        public ActionResult<ProductInfo> Create(ProductInfo product)
         {
-            _productService.Create(product);
+            bll.AddProduct(product);
             return CreatedAtRoute("GetProduct", new { id = product.Id.ToString() }, product);
         }
 
         [HttpPut("{id:length(24)}")]
-        public IActionResult Update(string id, ProductModel productModel)
+        public IActionResult Update(string id, ProductInfo productModel)
         {
-            var product = _productService.GetById(id);
+            var product = bll.GetByProductId(id);
             if (product == null)
             {
                 return NotFound();
             }
 
-            _productService.Update(id, productModel);
+            bll.EditProduct(id, productModel);
 
-            return NoContent();
+            return new ObjectResult(product);
         }
 
         [HttpDelete("{id:length(24)}")]
         public IActionResult DeleteById(string id)
         {
-            var product = _productService.GetById(id);
+            var product = bll.GetByProductId(id);
             if (product == null)
             {
                 return NotFound();
             }
 
-            _productService.Remove(product.Id);
+            bll.DeleteProduct(product.Id);
 
-            return NoContent();
+            return new ObjectResult(product);
         }
 
     }
