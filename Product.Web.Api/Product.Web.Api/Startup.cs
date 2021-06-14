@@ -50,7 +50,7 @@ namespace Product.Web.Api
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Product.Web.Api", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "API Produtos NET 5", Version = "v1" });
             });
         }
 
