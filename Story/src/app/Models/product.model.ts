@@ -3,6 +3,6 @@ export interface Product {
     nameProduct: string,
     descriptionProduct: string,
     quantity: number,
-    Value: number,
-    IsActive: boolean
+    value: number,
+    isActive: boolean
 }
